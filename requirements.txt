@@ -1,0 +1,5 @@
+pandas==2.2.1
+polars==0.20.17
+jupyterlab
+numpy==1.26.4
+beautifulsoup4==4.12.3
