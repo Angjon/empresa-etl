@@ -56,7 +56,7 @@ dtypes = {
     'ddd_2':pl.String,
     'ddd_fax':pl.String,
     'pais': pl.Int32,
-    'cnae_principal': pl.String,
+    'cnae_principal': pl.Int64,
     'cep': pl.String,
     'uf': pl.Categorical,
     'municipio': pl.Int32,
@@ -108,7 +108,8 @@ for i in range(0,len(extract_dir)):
             ],
             separator = " ",
         ).alias("logradouro_completo"),
-        pl.col('cnae_secundario').cast(pl.List(pl.Utf8))
+        pl.col('cnae_secundario').cast(pl.List(pl.Utf8)),
+        pl.col(['nome_fantasia','bairro','complemento','email','ddd_1','ddd_2','telefone_1','telefone_2']).replace("",None)
     )
 
     # remove unused columns
