@@ -3,9 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+
+*.load_data.py
+
 # C extensions
 *.so
 data/
+backend/
 # Distribution / packaging
 .Python
 build/
