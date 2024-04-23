@@ -1,5 +1,6 @@
 import os
 import zipfile
+from utils.make_folder import _make_folder
 
 def extract_data():
     #Files in raw folder
@@ -8,11 +9,6 @@ def extract_data():
     BRONZE_DIR = 'airflow/data/bronze/extract'
     BRONZE_DIR_SUP = 'airflow/data/bronze/support'
 
-    def _make_folder(path) -> None:
-        if not os.path.exists(path):
-            os.makedirs(path)
-        else:
-            pass
 
     _make_folder(BRONZE_DIR)
     _make_folder(BRONZE_DIR_SUP)

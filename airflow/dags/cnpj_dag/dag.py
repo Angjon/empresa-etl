@@ -2,10 +2,10 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
-from scripts.download_data import download_data
-from scripts.extract_data import extract_data
-from scripts.transform_bronze import transform_bronze
-from scripts.transform_silver import transform_silver
+from cnpj_dag.scripts.download_data import download_data
+from cnpj_dag.scripts.extract_data import extract_data
+from cnpj_dag.scripts.transform_bronze import transform_bronze
+from cnpj_dag.scripts.transform_silver import transform_silver
 
 default_args = {
     'owner': 'airflow',
@@ -16,11 +16,13 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
+
+#run it daily at midnight
 dag = DAG(
     'etl_process',
     default_args=default_args,
     description='Orchestrate ETL process',
-    schedule_interval=timedelta(days=1),
+    schedule_interval='0 0 * * *',
     start_date=days_ago(1),
     tags=['etl']
 )

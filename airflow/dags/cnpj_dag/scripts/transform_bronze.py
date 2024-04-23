@@ -1,98 +1,57 @@
-import polars as pl
-import os
-from scripts.download_data import _make_folder
-
 def transform_bronze():
+    from utils.make_folder import _make_folder
+    from utils.get_json import get_json_file
+    from utils.support_dtypes import set_dtypes
+    import logging
+    import os
+    import polars as pl
+
+    data_json = get_json_file('bronze_data.json')
+
     # Column names
-    new_columns = [
-        "cnpj_basic",
-        "cnpj_order",
-        "cnpj_dv",
-        "identificador_matriz",
-        "nome_fantasia",
-        "situacao_cadastral",
-        "data_situacao_cadastral",
-        "motivo_situacao_cadastral",
-        "nome_cidade_exterior",
-        "pais",
-        "data_inicio_atividade",
-        "cnae_principal",
-        "cnae_secundario",
-        "tipo_logradouro",
-        "logradouro",
-        "numero",
-        "complemento",
-        "bairro",
-        "cep",
-        "uf",
-        "municipio",
-        "ddd_1",
-        "telefone_1",
-        "ddd_2",
-        "telefone_2",
-        "ddd_fax",
-        "fax",
-        "email",
-        "situacao_especial",
-        "data_situacao_especial",
-    ]
-    DOMAIN_PATH = 'airflow/data/domain'
+    new_columns = data_json["bronze"]["columns"]
 
     # Data types
-    dtypes = {
-        "cnpj_basic": pl.String,
-        "cnpj_order": pl.String,
-        "cnpj_dv": pl.String,
-        "data_situacao_cadastral": pl.String,
-        "identificador_matriz": pl.Int8,
-        "situacao_cadastral": pl.Int8,
-        "data_inicio_atividade": pl.String,
-        "motivo_situacao_cadastral": pl.Int16,
-        "telefone_1": pl.String,
-        "telefone_2": pl.String,
-        "fax": pl.String,
-        "ddd_1": pl.String,
-        "ddd_2": pl.String,
-        "ddd_fax": pl.String,
-        "pais": pl.Int32,
-        "cnae_principal": pl.Int64,
-        "cep": pl.String,
-        "uf": pl.Categorical,
-        "municipio": pl.Int32,
-        "situacao_especial": pl.Categorical,
-    }
+    dtypes = set_dtypes(data_json["bronze"]["dtypes"])
+
+    # dtypes_aux = data_json["bronze"]["dtypes"]
+
+    # dtypes = {}
+
+    # for key,value in dtypes_aux.items():
+    #     dtypes.update({key:eval(value)})
+
+    DOMAIN_PATH = "airflow/data/domain"
 
     # Get folders in extract directory (list)
     extract_dir = os.listdir("airflow/data/bronze/extract/")
-    empresa_part = []
 
-    # Get file names
-    for i in range(0, len(extract_dir)):
-        file_part = os.listdir(f"airflow/data/bronze/extract/{extract_dir[i]}/")[0]
-        empresa_part.append(file_part)
+    empresa_part = [ os.listdir(f"airflow/data/bronze/extract/{extract_dir[i]}/")[0] for i in range(0, len(extract_dir))]
 
-    print("Starting data reading")
+    logging.info("Starting data reading")
     for i in range(0, len(extract_dir)):
-        print(f"Reading part: {extract_dir[i]}")
+        logging.info(f"Reading part: {extract_dir[i]}")
         df_emp = pl.read_csv(
             f"airflow/data/bronze/extract/{extract_dir[i]}/{empresa_part[i]}",
             encoding="latin1",
             separator=";",
             has_header=False,
             new_columns=new_columns,
-            dtypes=dtypes
+            dtypes=dtypes,
         )
 
         print("Changing data types for dates")
         # Change data types for date
         df_emp = df_emp.with_columns(
-            pl.col("data_situacao_cadastral").str.strptime(pl.Date, "%Y %m %d", strict=False).cast(pl.Date),
+            pl.col("data_situacao_cadastral")
+            .str.strptime(pl.Date, "%Y %m %d", strict=False)
+            .cast(pl.Date),
             pl.col("data_inicio_atividade")
             .str.strptime(pl.Date, "%Y %m %d", strict=False)
             .cast(pl.Date),
             pl.col("data_situacao_especial")
             .str.strptime(pl.Date, "%Y %m %d", strict=False)
-            .cast(pl.Date)
+            .cast(pl.Date),
         )
 
         print("Concating data")
@@ -122,7 +81,7 @@ def transform_bronze():
                     "telefone_1",
                     "telefone_2",
                 ]
-            ).replace("", None)
+            ).replace("", None),
         )
 
         # remove unused columns
@@ -138,10 +97,8 @@ def transform_bronze():
 
         _make_folder(DOMAIN_PATH)
 
-        print("Dumping to parquet")
+        logging.info("Dumping to parquet")
         # Dumping to parquet
-        df_emp.write_parquet(
-            f"airflow/data/domain/{extract_dir[i]}_silver.parquet"
-        )
+        df_emp.write_parquet(f"airflow/data/domain/{extract_dir[i]}_silver.parquet")
         # Deleting frame to free memory space
         del df_emp
