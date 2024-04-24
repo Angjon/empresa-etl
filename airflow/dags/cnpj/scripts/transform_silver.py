@@ -1,4 +1,4 @@
-def transform_silver():
+def transform_silver(save_path):
     import polars as pl
     import os
     import logging
@@ -7,6 +7,10 @@ def transform_silver():
     from utils.util import get_json_file
     from utils.util import set_dtypes
 
+    BRONZE_PATH = Variable.get('bronze_path_var')
+    DOMAIN_PATH = Variable.get('domain_path_var')
+    GOLD_PATH = Variable.get('gold_path_var')
+    
     data_json = get_json_file('silver_data.json')
 
     # Set column names for support dataframes
@@ -21,27 +25,27 @@ def transform_silver():
 
     # Setting support data frames paths and reading
     # Motivo
-    support_motivo_path = os.listdir("airflow/data/bronze/support/motivos/")[0]
+    support_motivo_path = os.listdir(f"{BRONZE_PATH}/support/motivos/")[0]
     df_mot = pl.read_csv(
-        f"airflow/data/bronze/support/motivos/{support_motivo_path}",
+        f"{BRONZE_PATH}/support/motivos/{support_motivo_path}",
         separator=";",
         new_columns=motivo_column,
         dtypes=dtypes_motivo,
     )
 
     # Municipio
-    support_municipio_path = os.listdir("airflow/data/bronze/support/municipios/")[0]
+    support_municipio_path = os.listdir(f"{BRONZE_PATH}/support/municipios/")[0]
     df_mun = pl.read_csv(
-        f"airflow/data/bronze/support/municipios/{support_municipio_path}",
+        f"{BRONZE_PATH}/support/municipios/{support_municipio_path}",
         separator=";",
         new_columns=municipio_column,
         dtypes=dtypes_municipio,
     )
 
     # Pais
-    support_pais_path = os.listdir("airflow/data/bronze/support/paises/")[0]
+    support_pais_path = os.listdir(f"{BRONZE_PATH}/support/paises/")[0]
     df_paises = pl.read_csv(
-        f"airflow/data/bronze/support/paises/{support_pais_path}",
+        f"{BRONZE_PATH}/support/paises/{support_pais_path}",
         separator=";",
         encoding="latin1",
         new_columns=pais_column,
@@ -49,7 +53,7 @@ def transform_silver():
     )
 
     # Directory for dataframe files
-    estabelecimentos_list = os.listdir("airflow/data/domain")
+    estabelecimentos_list = os.listdir(f"{DOMAIN_PATH}")
 
     select_columns = data_json['silver']['select_columns']
 
@@ -57,7 +61,7 @@ def transform_silver():
     for index, file in enumerate(estabelecimentos_list):
         if file.endswith(".parquet"):
             logging.info(f"Reading file: {file}")
-            df_emp = pl.read_parquet(f"airflow/data/domain/{file}")
+            df_emp = pl.read_parquet(f"{DOMAIN_PATH}/{file}")
 
             # Data cleaning for ddd's columns / change for company type
             logging.info("Cleaning data")
@@ -92,19 +96,19 @@ def transform_silver():
             df_emp = df_emp.join(df_paises, on="pais", how="left")
 
 
-            _make_folder('airflow/data/gold/matriz')
-            _make_folder('airflow/data/gold/filial')
+            _make_folder(f'{GOLD_PATH}/matriz')
+            _make_folder(f'{GOLD_PATH}/filial')
 
             logging.info(f"Dumping matriz,file: {index}")
             # Dump to parquet for matriz
             df_emp.select(select_columns).filter(
                 pl.col("identificador_matriz") == "matriz"
-            ).write_parquet(f"airflow/data/gold/matriz/estabelecimento_matriz_{index}.parquet")
+            ).write_parquet(f"{GOLD_PATH}/matriz/estabelecimento_matriz_{index}.parquet")
 
             logging.info(f"Dumping filial,file: {index}")
             # Dump to parquet for filial
             df_emp.select(select_columns).filter(
                 pl.col("identificador_matriz") == "filial"
-            ).write_parquet(f"airflow/data/gold/filial/estabelecimento_filial_{index}.parquet")
+            ).write_parquet(f"{GOLD_PATH}/filial/estabelecimento_filial_{index}.parquet")
 
             del df_emp
