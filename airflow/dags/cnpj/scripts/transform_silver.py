@@ -2,9 +2,10 @@ def transform_silver():
     import polars as pl
     import os
     import logging
-    from utils.make_folder import _make_folder
-    from utils.get_json import get_json_file
-    from utils.support_dtypes import set_dtypes
+    from airflow.models import Variable
+    from utils.util import _make_folder
+    from utils.util import get_json_file
+    from utils.util import set_dtypes
 
     data_json = get_json_file('silver_data.json')
 

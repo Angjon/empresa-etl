@@ -2,10 +2,10 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
-from cnpj_dag.scripts.download_data import download_data
-from cnpj_dag.scripts.extract_data import extract_data
-from cnpj_dag.scripts.transform_bronze import transform_bronze
-from cnpj_dag.scripts.transform_silver import transform_silver
+from cnpj.scripts.download_data import download_data
+from cnpj.scripts.extract_data import extract_data
+from cnpj.scripts.transform_bronze import transform_bronze
+from cnpj.scripts.transform_silver import transform_silver
 
 default_args = {
     'owner': 'airflow',

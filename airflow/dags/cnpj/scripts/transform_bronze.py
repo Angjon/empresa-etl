@@ -1,7 +1,8 @@
 def transform_bronze():
-    from utils.make_folder import _make_folder
-    from utils.get_json import get_json_file
-    from utils.support_dtypes import set_dtypes
+    from utils.util import _make_folder
+    from utils.util import get_json_file
+    from utils.util import set_dtypes
+    from airflow.models import Variable
     import logging
     import os
     import polars as pl
@@ -14,14 +15,8 @@ def transform_bronze():
     # Data types
     dtypes = set_dtypes(data_json["bronze"]["dtypes"])
 
-    # dtypes_aux = data_json["bronze"]["dtypes"]
-
-    # dtypes = {}
-
-    # for key,value in dtypes_aux.items():
-    #     dtypes.update({key:eval(value)})
-
-    DOMAIN_PATH = "airflow/data/domain"
+    # Getting variable from airflow UI
+    DOMAIN_PATH = Variable.get('domain_path_var')
 
     # Get folders in extract directory (list)
     extract_dir = os.listdir("airflow/data/bronze/extract/")

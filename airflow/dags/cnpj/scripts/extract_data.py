@@ -1,6 +1,6 @@
 import os
 import zipfile
-from utils.make_folder import _make_folder
+from utils.util import _make_folder
 
 def extract_data():
     #Files in raw folder

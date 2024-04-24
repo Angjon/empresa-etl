@@ -3,11 +3,13 @@ def download_data():
     import requests
     import os
     import concurrent.futures
-    from utils.make_folder import _make_folder
-    from utils.download_file import download_file
+    from utils.util import _make_folder
+    from airflow.models import Variable
+    from utils.util import download_file
 
-    RAW_PATH = 'airflow/data/raw/'
-    PATH_SUP = 'support'
+    # Getting variable from airflow UI
+    RAW_PATH = Variable.get('raw_path_var')
+    PATH_SUP = Variable.get('sup_path_var')
 
     url = "https://dados.rfb.gov.br/CNPJ/"
 
@@ -47,11 +49,12 @@ def download_data():
     num_threads_supp = min(len(urls), 3)
 
     # #Download files using multiple threads
-    # with concurrent.futures.ThreadPoolExecutor(
-    #     max_workers=num_threads_estabe
-    # ) as executor:
-    #     executor.map(download_file, urls, filenames_estabele)
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=num_threads_estabe
+    ) as executor:
+        executor.map(download_file, urls, filenames_estabele)
 
+    #Download support files
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=num_threads_supp
     ) as executor:
