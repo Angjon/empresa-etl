@@ -15,7 +15,9 @@ def download_file(url, filename):
 
 # Retrive json data function
 def get_json_file(doc):
-    with open(f'airflow/dags/config/{doc}', 'r') as file:
+    from airflow.models import Variable
+    CONFIG_PATH = Variable.get('config_path_var')
+    with open(f'{CONFIG_PATH}/{doc}', 'r') as file:
         data_list = json.load(file)
         return data_list
     

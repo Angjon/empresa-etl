@@ -17,17 +17,18 @@ def transform_bronze():
 
     # Getting variable from airflow UI
     DOMAIN_PATH = Variable.get('domain_path_var')
+    BRONZE_PATH = Variable.get('bronze_path_var')
 
     # Get folders in extract directory (list)
-    extract_dir = os.listdir("airflow/data/bronze/extract/")
+    extract_dir = os.listdir(f"{BRONZE_PATH}/extract/")
 
-    empresa_part = [ os.listdir(f"airflow/data/bronze/extract/{extract_dir[i]}/")[0] for i in range(0, len(extract_dir))]
+    empresa_part = [ os.listdir(f"{BRONZE_PATH}/extract/{extract_dir[i]}/")[0] for i in range(0, len(extract_dir))]
 
     logging.info("Starting data reading")
     for i in range(0, len(extract_dir)):
         logging.info(f"Reading part: {extract_dir[i]}")
         df_emp = pl.read_csv(
-            f"airflow/data/bronze/extract/{extract_dir[i]}/{empresa_part[i]}",
+            f"{BRONZE_PATH}/extract/{extract_dir[i]}/{empresa_part[i]}",
             encoding="latin1",
             separator=";",
             has_header=False,
@@ -94,6 +95,6 @@ def transform_bronze():
 
         logging.info("Dumping to parquet")
         # Dumping to parquet
-        df_emp.write_parquet(f"airflow/data/domain/{extract_dir[i]}_silver.parquet")
+        df_emp.write_parquet(f"{DOMAIN_PATH}/{extract_dir[i]}_silver.parquet")
         # Deleting frame to free memory space
         del df_emp

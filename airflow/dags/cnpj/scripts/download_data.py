@@ -1,4 +1,4 @@
-def download_data():
+def download_data(save_path):
     from bs4 import BeautifulSoup
     import requests
     import os
@@ -9,7 +9,7 @@ def download_data():
 
     # Getting variable from airflow UI
     RAW_PATH = Variable.get('raw_path_var')
-    PATH_SUP = Variable.get('sup_path_var')
+    PATH_SUP = "support"
 
     url = "https://dados.rfb.gov.br/CNPJ/"
 
@@ -35,14 +35,14 @@ def download_data():
     ##DEBUG
 
     _make_folder(RAW_PATH)
-    _make_folder(RAW_PATH + PATH_SUP)
+    _make_folder(RAW_PATH + "/" + PATH_SUP)
 
     # Name and directory for estabelecimentos files
-    filenames_estabele = [RAW_PATH + estabe.lower() for estabe in estabelecimentos]
+    filenames_estabele = [RAW_PATH + "/" + estabe.lower() for estabe in estabelecimentos]
 
     # Name and directory for support file
 
-    filenames_support = ["airflow/data/raw/support/" + sup + ".zip" for sup in support]
+    filenames_support = [f"{RAW_PATH}/{PATH_SUP}/" + sup + ".zip" for sup in support]
 
     # Define number of threads
     num_threads_estabe = min(len(urls), 10)
