@@ -20,7 +20,7 @@ def download_data(save_path):
     # Lists for estabelecimentos anchors and download url's
     estabelecimentos = [anchor['href'] for anchor in soup.find_all("a") if "estabelecimentos" in anchor.text.lower()]
 
-    urls = ["https://dados.rfb.gov.br/CNPJ/{url}" for url in estabelecimentos]
+    urls = [f"https://dados.rfb.gov.br/CNPJ/{url}" for url in estabelecimentos]
 
     # Lists for support files anchors and download url's
     

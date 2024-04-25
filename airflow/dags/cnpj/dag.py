@@ -57,8 +57,8 @@ transform_bronze_task = PythonOperator(
 transform_silver_task = PythonOperator(
     task_id='transform_silver',
     python_callable=transform_silver,
-    op_kwargs={"save_path":GOLD_PATH}
     dag=dag,
+    op_kwargs={"save_path":GOLD_PATH}
 )
 
 # Set dependencies
