@@ -32,6 +32,7 @@ dag = DAG(
     tags=['etl']
 )
 
+
 download_task = PythonOperator(
     task_id='download_data',
     python_callable=download_data,
