@@ -1,0 +1,47 @@
+{
+    "silver": {
+        "motivo_column": [
+            "situacao_cadastral",
+            "descricao_motivo"
+        ],
+        "municipio_column": [
+            "municipio",
+            "descricao_municipio"
+        ],
+        "pais_column": [
+            "pais",
+            "descricao_pais"
+        ],
+        "select_columns": [
+            "cnpj_completo",
+            "nome_fantasia",
+            "identificador_matriz",
+            "data_inicio_atividade",
+            "descricao_pais",
+            "uf",
+            "descricao_municipio",
+            "cep",
+            "logradouro_completo",
+            "bairro",
+            "numero",
+            "complemento",
+            "ddd1_alias",
+            "telefone_1",
+            "ddd2_alias",
+            "telefone_2",
+            "email",
+            "cnae_principal",
+            "descricao_motivo"
+        ],
+        "dtypes_motivo": {
+            "situacao_cadastral": "pl.Int8",
+            "descricao_motivo": "pl.Categorical"
+        },
+        "dtypes_municipio": {
+            "municipio": "pl.Int32"
+        },
+        "dtypes_pais": {
+            "pais": "pl.Int32"
+        }
+    }
+}
